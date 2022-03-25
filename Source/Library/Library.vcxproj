@@ -11,12 +11,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\실습파일\Lab02\Library\Renderer\Renderer.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Window\BaseWindow.h" />
+    <ClInclude Include="Window\MainWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\실습파일\Lab02\Library\Renderer\Renderer.cpp" />
     <ClCompile Include="Game\Game.cpp" />
+    <ClCompile Include="Window\MainWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />
