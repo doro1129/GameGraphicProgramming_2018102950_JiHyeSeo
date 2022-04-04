@@ -94,17 +94,15 @@ namespace library
         Returns:  LRESULT
                     Integer value that your program returns to Windows
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    /*--------------------------------------------------------------------
-      TODO: BaseWindow<DerivedType>::WindowProc definition (remove the comment)
-    --------------------------------------------------------------------*/
     template <class DerivedType>
-    LRESULT BaseWindow<DerivedType>::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+    LRESULT BaseWindow<DerivedType>::WindowProc(_In_ HWND hWnd, _In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam)
     {
         DerivedType* pThis = nullptr;
-        if (uMsg == WM_CREATE)
+
+        if (uMsg == WM_NCCREATE)
         {
-            CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
-            pThis = reinterpret_cast<DerivedType*>(pCreate->lpCreateParams);
+            CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*> (lParam);
+            pThis = reinterpret_cast<DerivedType*> (pCreate->lpCreateParams);
             SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
             pThis->m_hWnd = hWnd;
         }
@@ -117,8 +115,10 @@ namespace library
         {
             return pThis->HandleMessage(uMsg, wParam, lParam);
         }
-
-        return DefWindowProc(hWnd, uMsg, wParam, lParam);
+        else
+        {
+            return DefWindowProc(hWnd, uMsg, wParam, lParam);
+        }
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -130,11 +130,10 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     template <class DerivedType>
     BaseWindow<DerivedType>::BaseWindow()
-    {
-        m_hInstance = nullptr;
-        m_hWnd = nullptr;
-        m_pszWindowName = nullptr;
-    }
+        : m_hInstance(nullptr)
+        , m_hWnd(nullptr)
+        , m_pszWindowName(L"Default")
+    { }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
         Method:   BaseWindow<DerivedType>::GetWindow()
@@ -184,72 +183,42 @@ namespace library
       Returns:  HRESULT
                   Status code
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    /*--------------------------------------------------------------------
-      TODO: BaseWindow<DerivedType>::initialize definition (remove the comment)
-    --------------------------------------------------------------------*/
     template <class DerivedType>
     HRESULT BaseWindow<DerivedType>::initialize(
-        HINSTANCE hInstance,
-        INT nCmdShow,
-        PCWSTR pszWindowName,
-        DWORD dwStyle,
-        INT x,
-        INT y,
-        INT nWidth,
-        INT nHeight,
-        HWND hWndParent,
-        HMENU hMenu
-    )
+        _In_ HINSTANCE hInstance,
+        _In_ INT nCmdShow,
+        _In_ PCWSTR pszWindowName,
+        _In_ DWORD dwStyle,
+        _In_opt_ INT x,
+        _In_opt_ INT y,
+        _In_opt_ INT nWidth,
+        _In_opt_ INT nHeight,
+        _In_opt_ HWND hWndParent,
+        _In_opt_ HMENU hMenu)
     {
-        m_hInstance = hInstance;
-        m_pszWindowName = pszWindowName;
-
-        //Register the window class.
-        WNDCLASSEX wcex;
-        wcex.cbSize = sizeof(WNDCLASSEX);
-        wcex.style = CS_HREDRAW | CS_VREDRAW;
-        wcex.lpfnWndProc = this->WindowProc;
-        wcex.cbClsExtra = 0;
-        wcex.cbWndExtra = 0;
-        wcex.hInstance = m_hInstance;
-        wcex.hIcon = LoadIcon(m_hInstance, IDI_APPLICATION);
-        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-        wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
-        wcex.lpszMenuName = nullptr;
-        wcex.lpszClassName = PSZ_COURSE_TITLE;
-        wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
-
+        WNDCLASSEX wcex = {
+            .cbSize = sizeof(WNDCLASSEX),
+            .style = CS_HREDRAW | CS_VREDRAW,
+            .lpfnWndProc = DerivedType::WindowProc,
+            .cbClsExtra = 0,
+            .cbWndExtra = 0,
+            .hInstance = hInstance,
+            .hIcon = LoadIcon(hInstance, IDI_APPLICATION),
+            .hCursor = LoadCursor(nullptr, IDC_ARROW),
+            .hbrBackground = (HBRUSH)(COLOR_WINDOW + 1),
+            .lpszMenuName = nullptr,
+            .lpszClassName = GetWindowClassName(),
+            .hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION)
+        };
         if (!RegisterClassEx(&wcex))
-        {
             return E_FAIL;
-        }
 
-        //Create the window.
-        m_hWnd = CreateWindowEx(
-            dwStyle,                //Optional window styles
-            PSZ_COURSE_TITLE,       //Window class
-            m_pszWindowName,        //Window text
-            WS_OVERLAPPEDWINDOW,    //Window style
-
-            //Size and position
-            x, y, nWidth, nHeight,
-
-            hWndParent,             //Parent wiwndow
-            hMenu,                  //Menu
-            m_hInstance,            //Instance handle
-            this                    //Additional application data
-        );
-
+        m_hInstance = hInstance;
+        m_hWnd = CreateWindow(GetWindowClassName(), pszWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, this);
         if (!m_hWnd)
-        {
             return E_FAIL;
-        }
 
-        //Show the window.
-        ShowWindow(
-            m_hWnd,
-            nCmdShow
-        );
+        ShowWindow(m_hWnd, nCmdShow);
 
         return S_OK;
     }
