@@ -46,6 +46,11 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     HRESULT Renderer::Initialize(_In_ HWND hWnd)
     {
+        RECT rc;
+        GetClientRect(hWnd, &rc);
+        UINT width = rc.right - rc.left;
+        UINT height = rc.bottom - rc.top;
+
         HRESULT hr = S_OK;
 
         DWORD createDeviceFlags = 0;
@@ -96,8 +101,8 @@ namespace library
         //Create the Swap Chain
         DXGI_SWAP_CHAIN_DESC desc =
         {
-            .BufferDesc = {.Width = 800,
-                            .Height = 600,
+            .BufferDesc = {.Width = width,
+                            .Height = height,
                             .RefreshRate = {.Numerator = 60,
                                              .Denominator = 1},
                             .Format = DXGI_FORMAT_R8G8B8A8_UNORM},
@@ -106,8 +111,7 @@ namespace library
             .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
             .BufferCount = 2,
             .OutputWindow = hWnd,
-            .Windowed = true,
-            .SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
+            .Windowed = true
         };
 
         ComPtr<IDXGIDevice> dxgiDevice = nullptr;
@@ -297,16 +301,14 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     void Renderer::Render()
     {
-        HRESULT hr = E_FAIL;
-
         //Setup the viewport
         D3D11_VIEWPORT vp = {
-            .TopLeftX = 0.0f,
-            .TopLeftY = 0.0f,
+            .TopLeftX = 0,
+            .TopLeftY = 0,
             .Width = (FLOAT)800,
             .Height = (FLOAT)600,
-            .MinDepth = 0.0,
-            .MaxDepth = 0.0f
+            .MinDepth = 0.0f,
+            .MaxDepth = 1.0f
         };
 
         m_immediateContext->RSSetViewports(1, &vp);

@@ -42,11 +42,7 @@ namespace library
 		if (FAILED(hr))
 			return hr;
 
-		HWND m_hWnd;
-
-		m_hWnd = m_mainWindow->GetWindow();
-
-		hr = m_renderer->Initialize(m_hWnd);
+		hr = m_renderer->Initialize(m_mainWindow->GetWindow());
 		if (FAILED(hr))
 			return hr;
 
@@ -90,6 +86,6 @@ namespace library
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 	PCWSTR Game::GetGameName() const
 	{
-		return L"Sample window Class";
+		return m_pszGameName;
 	}
 }
