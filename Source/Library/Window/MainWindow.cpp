@@ -23,12 +23,13 @@ namespace library
         RECT rc = { 0, 0, 800, 600 };
         AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
-        HRESULT hr = initialize(hInstance, 
-            nCmdShow, 
-            pszWindowName, 
-            WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, 
-            CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, 
-            nullptr, 
+        HRESULT hr = initialize(
+            hInstance,
+            nCmdShow,
+            pszWindowName,
+            WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+            CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top,
+            nullptr,
             nullptr);
         if (FAILED(hr))
         {
@@ -74,8 +75,8 @@ namespace library
         switch (uMsg)
         {
         case WM_PAINT:
-            hdc = BeginPaint(m_hWnd, &ps);
-            EndPaint(m_hWnd, &ps);
+            hdc = BeginPaint(GetWindow(), &ps);
+            EndPaint(GetWindow(), &ps);
             break;
 
         case WM_DESTROY:
@@ -86,7 +87,7 @@ namespace library
             // so we created the window without the resize border.
 
         default:
-            return DefWindowProc(m_hWnd, uMsg, wParam, lParam);
+            return DefWindowProc(GetWindow(), uMsg, wParam, lParam);
         }
 
         return 0;
