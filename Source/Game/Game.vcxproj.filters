@@ -36,6 +36,9 @@
     <ClCompile Include="Cube\SideCube.cpp">
       <Filter>Source Files\Cube</Filter>
     </ClCompile>
+    <ClCompile Include="Cube\DynamicCube.cpp">
+      <Filter>Source Files\Cube</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cube\BaseCube.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files\Cube</Filter>
     </ClInclude>
     <ClInclude Include="Cube\SideCube.h">
+      <Filter>Header Files\Cube</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube\DynamicCube.h">
       <Filter>Header Files\Cube</Filter>
     </ClInclude>
   </ItemGroup>

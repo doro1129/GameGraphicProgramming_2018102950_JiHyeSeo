@@ -1,9 +1,8 @@
 #include "Cube/SideCube.h"
 
 SideCube::SideCube()
-{
-    m_count = 0.0f;
-}
+    : m_count(0.0f)
+{ }
 
 /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Method:   SideCube::Update

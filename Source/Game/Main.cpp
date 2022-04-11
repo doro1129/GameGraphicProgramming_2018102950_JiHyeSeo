@@ -16,6 +16,7 @@
 #include "Game/Game.h"
 #include "Cube/MiddleCube.h"
 #include "Cube/SideCube.h"
+#include "Cube/DynamicCube.h"
 
 /*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Function: wWinMain
@@ -91,6 +92,22 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     }
 
     if (FAILED(game->GetRenderer()->SetPixelShaderOfRenderable(L"SideCube", L"MainShader")))
+    {
+        return 0;
+    }
+
+    std::shared_ptr<DynamicCube> dynamicCube = std::make_shared<DynamicCube>();
+    if (FAILED(game->GetRenderer()->AddRenderable(L"DynamicCube", dynamicCube)))
+    {
+        return 0;
+    }
+
+    if (FAILED(game->GetRenderer()->SetVertexShaderOfRenderable(L"DynamicCube", L"MainShader")))
+    {
+        return 0;
+    }
+
+    if (FAILED(game->GetRenderer()->SetPixelShaderOfRenderable(L"DynamicCube", L"MainShader")))
     {
         return 0;
     }
