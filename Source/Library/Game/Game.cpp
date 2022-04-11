@@ -25,7 +25,7 @@ namespace library
 
       Args:     HINSTANCE hInstance
                   Handle to the instance
-                INT nCmdShow
+              INT nCmdShow
                   Is a flag that says whether the main application window
                   will be minimized, maximized, or shown normally
 
@@ -80,7 +80,13 @@ namespace library
                 QueryPerformanceCounter(&EndingTime);
                 DeltaTime = (EndingTime.QuadPart - StartingTime.QuadPart) / (float)Frequency.QuadPart;
 
-                //update game - update the renderer - renderer updates the renderables
+                GetRenderer()->HandleInput(
+                    GetWindow()->GetDirections(),
+                    GetWindow()->GetMouseRelativeMovement(),
+                    DeltaTime
+                );
+                GetWindow()->ResetMouseMovement();
+
                 GetRenderer()->Update(DeltaTime);
 
                 QueryPerformanceCounter(&StartingTime);

@@ -16,7 +16,6 @@
 #include "Game/Game.h"
 #include "Cube/MiddleCube.h"
 #include "Cube/SideCube.h"
-#include "Cube/DynamicCube.h"
 
 /*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Function: wWinMain
@@ -49,7 +48,7 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    std::unique_ptr<library::Game> game = std::make_unique<library::Game>(L"Game Graphics Programming Lab 04: 3D Spaces and Transformations");
+    std::unique_ptr<library::Game> game = std::make_unique<library::Game>(L"Game Graphics Programming Assignment 01: Flying Camera");
 
     std::shared_ptr<library::VertexShader> vertexShader = std::make_shared<library::VertexShader>(L"Shaders/Shaders.fxh", "VS", "vs_5_0");
     if (FAILED(game->GetRenderer()->AddVertexShader(L"MainShader", vertexShader)))
@@ -76,38 +75,6 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     }
 
     if (FAILED(game->GetRenderer()->SetPixelShaderOfRenderable(L"MiddleCube", L"MainShader")))
-    {
-        return 0;
-    }
-
-    std::shared_ptr<SideCube> sideCube = std::make_shared<SideCube>();
-    if (FAILED(game->GetRenderer()->AddRenderable(L"SideCube", sideCube)))
-    {
-        return 0;
-    }
-
-    if (FAILED(game->GetRenderer()->SetVertexShaderOfRenderable(L"SideCube", L"MainShader")))
-    {
-        return 0;
-    }
-
-    if (FAILED(game->GetRenderer()->SetPixelShaderOfRenderable(L"SideCube", L"MainShader")))
-    {
-        return 0;
-    }
-
-    std::shared_ptr<DynamicCube> dynamicCube = std::make_shared<DynamicCube>();
-    if (FAILED(game->GetRenderer()->AddRenderable(L"DynamicCube", dynamicCube)))
-    {
-        return 0;
-    }
-
-    if (FAILED(game->GetRenderer()->SetVertexShaderOfRenderable(L"DynamicCube", L"MainShader")))
-    {
-        return 0;
-    }
-
-    if (FAILED(game->GetRenderer()->SetPixelShaderOfRenderable(L"DynamicCube", L"MainShader")))
     {
         return 0;
     }
