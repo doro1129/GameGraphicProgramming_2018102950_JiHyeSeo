@@ -134,7 +134,7 @@ namespace library
         m_yaw += mouseRelativeMovement.X * m_rotationSpeed * deltaTime;
         m_pitch += mouseRelativeMovement.Y * m_rotationSpeed * deltaTime;
 
-        m_pitch = std::clamp(m_pitch, -XM_PIDIV2, XM_PIDIV2);
+        m_pitch = std::clamp(m_pitch, -XM_PIDIV2 + 0.000001f, XM_PIDIV2 - 0.000001f);
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
