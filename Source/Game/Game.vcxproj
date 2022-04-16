@@ -12,16 +12,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Cube\BaseCube.cpp" />
-    <ClCompile Include="Cube\DynamicCube.cpp" />
-    <ClCompile Include="Cube\MiddleCube.cpp" />
-    <ClCompile Include="Cube\SideCube.cpp" />
+    <ClCompile Include="Cube\Cube.cpp" />
+    <ClCompile Include="Cube\CustomCube.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cube\BaseCube.h" />
-    <ClInclude Include="Cube\DynamicCube.h" />
-    <ClInclude Include="Cube\MiddleCube.h" />
-    <ClInclude Include="Cube\SideCube.h" />
+    <ClInclude Include="Cube\Cube.h" />
+    <ClInclude Include="Cube\CustomCube.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Shaders.fxh" />

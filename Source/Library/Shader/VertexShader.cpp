@@ -63,19 +63,21 @@ namespace library
         D3D11_INPUT_ELEMENT_DESC aLayouts[] =
         {
             {"POSITION",
-            0,
+            0u,
             DXGI_FORMAT_R32G32B32_FLOAT,
-            0,
-            0,
+            0u,
+            0u,
             D3D11_INPUT_PER_VERTEX_DATA,
-            0},
-            //{"COLOR",
-            //0,
-            //DXGI_FORMAT_R32G32B32A32_FLOAT,
-            //0,
-            //12,
-            //D3D11_INPUT_PER_VERTEX_DATA,
-            //0}
+            0u
+            },
+            {"TEXCOORD",
+            0u,
+            DXGI_FORMAT_R32G32_FLOAT,
+            0u,
+            12u,
+            D3D11_INPUT_PER_VERTEX_DATA,
+            0u
+            }
         };
         UINT uNumElements = ARRAYSIZE(aLayouts);
 

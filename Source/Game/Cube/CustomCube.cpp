@@ -1,19 +1,19 @@
-#include "Cube/Cube.h"
+#include "Cube/CustomCube.h"
 
 /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Method:   Cube::Cube
+  Method:   CustomCube::CustomCube
 
   Summary:  Constructor
 
   Args:     const std::filesystem::path& textureFilePath
               Path to the texture to use
 M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-Cube::Cube(const std::filesystem::path& textureFilePath)
+CustomCube::CustomCube(const std::filesystem::path& textureFilePath)
     : BaseCube(textureFilePath)
 { }
 
 /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Method:   Cube::Update
+  Method:   CustomCube::Update
 
   Summary:  Updates the cube every frame
 
@@ -22,10 +22,10 @@ Cube::Cube(const std::filesystem::path& textureFilePath)
 
   Modifies: [m_world].
 M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-void Cube::Update(_In_ FLOAT deltaTime)
+void CustomCube::Update(_In_ FLOAT deltaTime)
 {
     static FLOAT s_totalTime = 0.0f;
     s_totalTime += deltaTime;
 
-    m_world = XMMatrixTranslation(0.0f, XMScalarSin(s_totalTime), 0.0f) * XMMatrixRotationY(s_totalTime);
+    m_world = XMMatrixRotationY(s_totalTime) * XMMatrixTranslation(3.0f, XMScalarSin(s_totalTime), 0.0f);
 }
