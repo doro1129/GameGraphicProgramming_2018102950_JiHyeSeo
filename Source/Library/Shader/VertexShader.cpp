@@ -77,6 +77,14 @@ namespace library
             12u,
             D3D11_INPUT_PER_VERTEX_DATA,
             0u
+            },
+            {"NORMAL",
+            0u,
+            DXGI_FORMAT_R32G32B32_FLOAT,
+            0u,
+            20u,
+            D3D11_INPUT_PER_VERTEX_DATA,
+            0u
             }
         };
         UINT uNumElements = ARRAYSIZE(aLayouts);
@@ -92,6 +100,8 @@ namespace library
         {
             return hr;
         }
+
+        return hr;
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M

@@ -22,6 +22,12 @@
     <Filter Include="Source Files\Cube">
       <UniqueIdentifier>{a295e6c2-5b3b-4fe2-b906-f74b1bdc0248}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Light">
+      <UniqueIdentifier>{545a4092-cae1-4792-8264-ee51195563dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Light">
+      <UniqueIdentifier>{797b7f87-3df0-43eb-819e-af70fc56d4b4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -36,6 +42,12 @@
     <ClCompile Include="Cube\CustomCube.cpp">
       <Filter>Source Files\Cube</Filter>
     </ClCompile>
+    <ClCompile Include="Cube\RotatingCube.cpp">
+      <Filter>Source Files\Cube</Filter>
+    </ClCompile>
+    <ClCompile Include="Light\RotatingPointLight.cpp">
+      <Filter>Source Files\Light</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cube\BaseCube.h">
@@ -47,9 +59,18 @@
     <ClInclude Include="Cube\CustomCube.h">
       <Filter>Header Files\Cube</Filter>
     </ClInclude>
+    <ClInclude Include="Cube\RotatingCube.h">
+      <Filter>Header Files\Cube</Filter>
+    </ClInclude>
+    <ClInclude Include="Light\RotatingPointLight.h">
+      <Filter>Header Files\Light</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Shaders.fxh">
+      <Filter>Header Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\PhongShaders.fxh">
       <Filter>Header Files\Shaders</Filter>
     </None>
   </ItemGroup>
