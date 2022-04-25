@@ -131,19 +131,19 @@ PS_LIGHT_CUBE_INPUT VSLightCube(VS_PHONG_INPUT input)
 float4 PSPhong( PS_PHONG_INPUT input ) : SV_Target
 {
     float3 ambient = float3(0.1f, 0.1f, 0.1f);
-    float3 store_ambient = float3(0.0f, 0.0f, 0.0f);
-    float3 diffuse = float3(0.0f, 0.0f, 0.0f);
+    float3 store_ambient;
+    float3 diffuse;
     float3 viewDirection = normalize(input.WorldPosition - CameraPosition.xyz);
-    float3 specular = float3(0.0f, 0.0f, 0.0f);
+    float3 specular;
     for (uint i = 0; i < NUM_LIGHTS; ++i)
     {
         store_ambient += ambient * txDiffuse.Sample(samLinear, input.TexCoord) * LightColors[i].xyz;
     
         float3 lightDirection = normalize(input.WorldPosition - LightPositions[i].xyz);
-        diffuse += max(dot(normalize(input.Normal), -lightDirection), 0) * LightColors[i].xyz * txDiffuse.Sample(samLinear, input.TexCoord);
+        diffuse += saturate(max(dot(normalize(input.Normal), -lightDirection), 0.0f) * LightColors[i].xyz * txDiffuse.Sample(samLinear, input.TexCoord));
     
         float3 reflectDirection = normalize(reflect(lightDirection, input.Normal));
-        specular += saturate(pow(max(dot(-viewDirection, reflectDirection), 0), 18.0f)) * LightColors[i].xyz * txDiffuse.Sample(samLinear, input.TexCoord);
+        specular += saturate(pow(max(dot(-viewDirection, reflectDirection), 0.0f), 20.0f)) * LightColors[i].xyz * txDiffuse.Sample(samLinear, input.TexCoord);
     }
 
     return float4(specular + diffuse + store_ambient, 1.0f);
