@@ -346,15 +346,17 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     HRESULT Renderer::AddRenderable(_In_ PCWSTR pszRenderableName, _In_ const std::shared_ptr<Renderable>& renderable)
     {
-        if (m_renderables.contains(pszRenderableName))
+        // checks if the key already exists in the renderable hash map
+        if (m_renderables.find(pszRenderableName) != m_renderables.end())
         {
+            // key already exists
             return E_FAIL;
         }
-        else
-        {
-            m_renderables[pszRenderableName] = renderable;
-            return S_OK;
-        }
+
+        // add the renderable
+        m_renderables.insert(std::make_pair(pszRenderableName, renderable));
+
+        return S_OK;
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -400,15 +402,17 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     HRESULT Renderer::AddVertexShader(_In_ PCWSTR pszVertexShaderName, _In_ const std::shared_ptr<VertexShader>& vertexShader)
     {
-        if (m_vertexShaders.contains(pszVertexShaderName))
+        // checks if the key already exists in the renderable hash map
+        if (m_vertexShaders.find(pszVertexShaderName) != m_vertexShaders.end())
         {
+            // key already exists
             return E_FAIL;
         }
-        else
-        {
-            m_vertexShaders[pszVertexShaderName] = vertexShader;
-            return S_OK;
-        }
+
+        // add the vertex shader
+        m_vertexShaders.insert(std::make_pair(pszVertexShaderName, vertexShader));
+
+        return S_OK;
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -428,15 +432,17 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     HRESULT Renderer::AddPixelShader(_In_ PCWSTR pszPixelShaderName, _In_ const std::shared_ptr<PixelShader>& pixelShader)
     {
-        if (m_pixelShaders.contains(pszPixelShaderName))
+        // checks if the key already exists in the renderable hash map
+        if (m_pixelShaders.find(pszPixelShaderName) != m_pixelShaders.end())
         {
+            // key already exists
             return E_FAIL;
         }
-        else
-        {
-            m_pixelShaders[pszPixelShaderName] = pixelShader;
-            return S_OK;
-        }
+
+        // add the pixel shader
+        m_pixelShaders.insert(std::make_pair(pszPixelShaderName, pixelShader));
+
+        return S_OK;
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -679,10 +685,15 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     HRESULT Renderer::SetVertexShaderOfRenderable(_In_ PCWSTR pszRenderableName, _In_ PCWSTR pszVertexShaderName)
     {
-        if (AddVertexShader(pszRenderableName, m_vertexShaders[pszVertexShaderName]) == E_FAIL)
-            return E_FAIL;
+        std::unordered_map<std::wstring, std::shared_ptr<Renderable>>::const_iterator iRenderable = m_renderables.find(pszRenderableName);
+        std::unordered_map<std::wstring, std::shared_ptr<VertexShader>>::const_iterator iVertexShader = m_vertexShaders.find(pszVertexShaderName);
 
-        m_renderables[pszRenderableName]->SetVertexShader(m_vertexShaders[pszVertexShaderName]);
+        if (iRenderable == m_renderables.end() || iVertexShader == m_vertexShaders.end())
+        {
+            return E_FAIL;
+        }
+
+        iRenderable->second->SetVertexShader(iVertexShader->second);
 
         return S_OK;
     }
@@ -704,10 +715,15 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     HRESULT Renderer::SetPixelShaderOfRenderable(_In_ PCWSTR pszRenderableName, _In_ PCWSTR pszPixelShaderName)
     {
-        if (AddPixelShader(pszRenderableName, m_pixelShaders[pszPixelShaderName]) == E_FAIL)
-            return E_FAIL;
+        std::unordered_map<std::wstring, std::shared_ptr<Renderable>>::const_iterator iRenderable = m_renderables.find(pszRenderableName);
+        std::unordered_map<std::wstring, std::shared_ptr<PixelShader>>::const_iterator iPixelShader = m_pixelShaders.find(pszPixelShaderName);
 
-        m_renderables[pszRenderableName]->SetPixelShader(m_pixelShaders[pszPixelShaderName]);
+        if (iRenderable == m_renderables.end() || iPixelShader == m_pixelShaders.end())
+        {
+            return E_FAIL;
+        }
+
+        iRenderable->second->SetPixelShader(iPixelShader->second);
 
         return S_OK;
     }
