@@ -346,13 +346,15 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     HRESULT Renderer::AddRenderable(_In_ PCWSTR pszRenderableName, _In_ const std::shared_ptr<Renderable>& renderable)
     {
-        if (m_renderables.count(pszRenderableName) != 0)
+        if (m_renderables.contains(pszRenderableName))
         {
             return E_FAIL;
         }
-
-        m_renderables.insert(make_pair(pszRenderableName, renderable));
-        return S_OK;
+        else
+        {
+            m_renderables[pszRenderableName] = renderable;
+            return S_OK;
+        }
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -398,12 +400,15 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     HRESULT Renderer::AddVertexShader(_In_ PCWSTR pszVertexShaderName, _In_ const std::shared_ptr<VertexShader>& vertexShader)
     {
-        if (m_vertexShaders.count(pszVertexShaderName) != 0)
+        if (m_vertexShaders.contains(pszVertexShaderName))
         {
             return E_FAIL;
         }
-        m_vertexShaders.insert(make_pair(pszVertexShaderName, vertexShader));
-        return S_OK;
+        else
+        {
+            m_vertexShaders[pszVertexShaderName] = vertexShader;
+            return S_OK;
+        }
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -423,12 +428,15 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     HRESULT Renderer::AddPixelShader(_In_ PCWSTR pszPixelShaderName, _In_ const std::shared_ptr<PixelShader>& pixelShader)
     {
-        if (m_pixelShaders.count(pszPixelShaderName) != 0)
+        if (m_pixelShaders.contains(pszPixelShaderName))
         {
             return E_FAIL;
         }
-        m_pixelShaders.insert(make_pair(pszPixelShaderName, pixelShader));
-        return S_OK;
+        else
+        {
+            m_pixelShaders[pszPixelShaderName] = pixelShader;
+            return S_OK;
+        }
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -620,22 +628,36 @@ namespace library
             );
             if (renderable->HasTexture())
             {
-                m_immediateContext->PSSetShaderResources(
-                    0,
-                    1,
-                    renderable->GetTextureResourceView().GetAddressOf()
-                );
-                m_immediateContext->PSSetSamplers(
-                    0,
-                    1,
-                    renderable->GetSamplerState().GetAddressOf()
-                );
+                for (UINT i = 0; i < renderable->GetNumMeshes(); ++i)
+                {
+                    UINT materialIndex = renderable->GetMesh(i).uMaterialIndex;
+                    assert(materialIndex < renderable->GetNumMaterials());
+                    std::shared_ptr<Texture> diffuse = renderable->GetMaterial(materialIndex).pDiffuse;
+                    m_immediateContext->PSSetShaderResources(
+                        0,
+                        1,
+                        diffuse->GetTextureResourceView().GetAddressOf()
+                    );
+                    m_immediateContext->PSSetSamplers(
+                        0,
+                        1,
+                        diffuse->GetSamplerState().GetAddressOf()
+                    );
+
+                    //Draw with texture
+                    m_immediateContext->DrawIndexed(
+                        renderable->GetMesh(i).uNumIndices, 
+                        renderable->GetMesh(i).uBaseVertex,
+                        renderable->GetMesh(i).uBaseIndex
+                    );
+                }
             }
-
-            //Draw
-            m_immediateContext->DrawIndexed(36, 0, 0);
+            else
+            {
+                //Draw without texture
+                m_immediateContext->DrawIndexed(renderable->GetNumIndices(), 0, 0);
+            }
         }
-
         //Present
         m_swapChain->Present(0, 0);
     }
@@ -657,11 +679,11 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     HRESULT Renderer::SetVertexShaderOfRenderable(_In_ PCWSTR pszRenderableName, _In_ PCWSTR pszVertexShaderName)
     {
-        if (m_renderables.find(pszRenderableName) == m_renderables.end() && m_vertexShaders.find(pszVertexShaderName) == m_vertexShaders.end())
-        {
+        if (AddVertexShader(pszRenderableName, m_vertexShaders[pszVertexShaderName]) == E_FAIL)
             return E_FAIL;
-        }
-        m_renderables.find(pszRenderableName)->second->SetVertexShader(m_vertexShaders.find(pszVertexShaderName)->second);
+
+        m_renderables[pszRenderableName]->SetVertexShader(m_vertexShaders[pszVertexShaderName]);
+
         return S_OK;
     }
 
@@ -682,11 +704,10 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     HRESULT Renderer::SetPixelShaderOfRenderable(_In_ PCWSTR pszRenderableName, _In_ PCWSTR pszPixelShaderName)
     {
-        if (m_renderables.find(pszRenderableName) == m_renderables.end() && m_pixelShaders.find(pszPixelShaderName) == m_pixelShaders.end())
-        {
+        if (AddPixelShader(pszRenderableName, m_pixelShaders[pszPixelShaderName]) == E_FAIL)
             return E_FAIL;
-        }
-        m_renderables.find(pszRenderableName)->second->SetPixelShader(m_pixelShaders.find(pszPixelShaderName)->second);
+
+        m_renderables[pszRenderableName]->SetPixelShader(m_pixelShaders[pszPixelShaderName]);
 
         return S_OK;
     }

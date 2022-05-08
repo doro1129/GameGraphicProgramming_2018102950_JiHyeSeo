@@ -1,18 +1,6 @@
 #include "Cube/CustomCube.h"
 
 /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-  Method:   CustomCube::CustomCube
-
-  Summary:  Constructor
-
-  Args:     const std::filesystem::path& textureFilePath
-              Path to the texture to use
-M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-CustomCube::CustomCube(const std::filesystem::path& textureFilePath)
-    : BaseCube(textureFilePath)
-{ }
-
-/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
   Method:   CustomCube::Update
 
   Summary:  Updates the cube every frame

@@ -39,9 +39,6 @@
     <ClCompile Include="Cube\BaseCube.cpp">
       <Filter>Source Files\Cube</Filter>
     </ClCompile>
-    <ClCompile Include="Cube\CustomCube.cpp">
-      <Filter>Source Files\Cube</Filter>
-    </ClCompile>
     <ClCompile Include="Cube\RotatingCube.cpp">
       <Filter>Source Files\Cube</Filter>
     </ClCompile>
@@ -54,9 +51,6 @@
       <Filter>Header Files\Cube</Filter>
     </ClInclude>
     <ClInclude Include="Cube\Cube.h">
-      <Filter>Header Files\Cube</Filter>
-    </ClInclude>
-    <ClInclude Include="Cube\CustomCube.h">
       <Filter>Header Files\Cube</Filter>
     </ClInclude>
     <ClInclude Include="Cube\RotatingCube.h">
