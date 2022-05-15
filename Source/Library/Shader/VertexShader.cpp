@@ -85,6 +85,38 @@ namespace library
             20u,
             D3D11_INPUT_PER_VERTEX_DATA,
             0u
+            },
+            {"INSTANCE_TRANSFORM",
+            0u,
+            DXGI_FORMAT_R32G32B32A32_FLOAT,
+            1u,
+            0u,
+            D3D11_INPUT_PER_INSTANCE_DATA,
+            1u
+            },
+            {"INSTANCE_TRANSFORM",
+            1u,
+            DXGI_FORMAT_R32G32B32A32_FLOAT,
+            1u,
+            16u,
+            D3D11_INPUT_PER_INSTANCE_DATA,
+            1u
+            },
+            {"INSTANCE_TRANSFORM",
+            2u,
+            DXGI_FORMAT_R32G32B32A32_FLOAT,
+            1u,
+            32u,
+            D3D11_INPUT_PER_INSTANCE_DATA,
+            1u
+            },
+            {"INSTANCE_TRANSFORM",
+            3u,
+            DXGI_FORMAT_R32G32B32A32_FLOAT,
+            1u,
+            48u,
+            D3D11_INPUT_PER_INSTANCE_DATA,
+            1u
             }
         };
         UINT uNumElements = ARRAYSIZE(aLayouts);
