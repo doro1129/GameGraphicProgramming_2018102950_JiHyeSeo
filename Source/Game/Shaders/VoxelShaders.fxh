@@ -112,16 +112,16 @@ PS_INPUT VSVoxel( VS_INPUT input )
 float4 PSVoxel( PS_INPUT input ) : SV_Target
 {
     float3 ambient = float3(0.1f, 0.1f, 0.1f);
-    float3 store_ambient;
-    float3 diffuse;
+    float3 store_ambient = float3(0.0f, 0.0f, 0.0f);
+    float3 diffuse = float3(0.0f, 0.0f, 0.0f);
     float3 viewDirection = normalize(input.WorldPosition - CameraPosition.xyz);
     for (uint i = 0; i < NUM_LIGHTS; ++i)
     {
         store_ambient += ambient * OutputColor.xyz * LightColors[i].xyz;
     
         float3 lightDirection = normalize(input.WorldPosition - LightPositions[i].xyz);
-        diffuse += saturate(max(dot(normalize(input.Normal), -lightDirection), 0.0f) * LightColors[i].xyz * OutputColor.xyz);
+        diffuse += max(dot(normalize(input.Normal), -lightDirection), 0.0f) * LightColors[i].xyz * OutputColor.xyz;
     }
 
-    return float4(diffuse + store_ambient, 1.0f);
+    return float4(saturate(diffuse + store_ambient), 1.0f);
 }

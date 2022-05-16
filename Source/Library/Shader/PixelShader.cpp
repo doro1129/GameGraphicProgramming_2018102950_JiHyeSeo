@@ -57,6 +57,8 @@ namespace library
         {
             return hr;
         }
+
+        return hr;
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
