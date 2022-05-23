@@ -70,6 +70,9 @@
     <None Include="Shaders\VoxelShaders.fxh">
       <Filter>Header Files\Shaders</Filter>
     </None>
+    <None Include="Shaders\SkinningShaders.fxh">
+      <Filter>Header Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\VS.hlsl">
