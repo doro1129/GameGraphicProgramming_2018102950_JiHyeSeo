@@ -86,10 +86,26 @@ namespace library
             D3D11_INPUT_PER_VERTEX_DATA,
             0u
             },
+            {"TANGENT",
+            0u,
+            DXGI_FORMAT_R32G32B32_FLOAT,
+            1u,
+            0u,
+            D3D11_INPUT_PER_INSTANCE_DATA,
+            0u
+            },
+            {"BITANGENT",
+            0u,
+            DXGI_FORMAT_R32G32B32_FLOAT,
+            1u,
+            12u,
+            D3D11_INPUT_PER_INSTANCE_DATA,
+            0u
+            },
             {"INSTANCE_TRANSFORM",
             0u,
             DXGI_FORMAT_R32G32B32A32_FLOAT,
-            1u,
+            2u,
             0u,
             D3D11_INPUT_PER_INSTANCE_DATA,
             1u
@@ -97,7 +113,7 @@ namespace library
             {"INSTANCE_TRANSFORM",
             1u,
             DXGI_FORMAT_R32G32B32A32_FLOAT,
-            1u,
+            2u,
             16u,
             D3D11_INPUT_PER_INSTANCE_DATA,
             1u
@@ -105,7 +121,7 @@ namespace library
             {"INSTANCE_TRANSFORM",
             2u,
             DXGI_FORMAT_R32G32B32A32_FLOAT,
-            1u,
+            2u,
             32u,
             D3D11_INPUT_PER_INSTANCE_DATA,
             1u
@@ -113,7 +129,7 @@ namespace library
             {"INSTANCE_TRANSFORM",
             3u,
             DXGI_FORMAT_R32G32B32A32_FLOAT,
-            1u,
+            2u,
             48u,
             D3D11_INPUT_PER_INSTANCE_DATA,
             1u
