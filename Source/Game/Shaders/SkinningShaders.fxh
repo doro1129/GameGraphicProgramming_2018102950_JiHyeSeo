@@ -118,8 +118,8 @@ PS_PHONG_INPUT VSPhong(VS_INPUT input)
     
     output.TexCoord = input.TexCoord;
 
-    output.Normal = mul(float4(input.Normal, 1), skinTransform);
-    output.Normal = normalize(mul(float4(output.Normal, 1), World).xyz);
+    output.Normal = mul(float4(input.Normal, 0), skinTransform);
+    output.Normal = normalize(mul(float4(output.Normal, 0), World).xyz);
 
     return output;
 }

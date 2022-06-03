@@ -60,7 +60,7 @@ cbuffer cbLights : register(b3)
   Struct:   VS_PHONG_INPUT
   Summary:  Used as the input to the vertex shader
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-struct VS_INPUT
+struct VS_PHONG_INPUT
 {
     float4 Position : POSITION;
     float2 TexCoord : TEXCOORD0;
@@ -94,7 +94,7 @@ struct PS_LIGHT_CUBE_INPUT
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-PS_PHONG_INPUT VSPhong(VS_INPUT input)
+PS_PHONG_INPUT VSPhong(VS_PHONG_INPUT input)
 {
     PS_PHONG_INPUT output = (PS_PHONG_INPUT) 0;
     
@@ -102,7 +102,7 @@ PS_PHONG_INPUT VSPhong(VS_INPUT input)
     output.Position = mul(output.Position, View);
     output.Position = mul(output.Position, Projection);
     
-    output.Normal = normalize(mul(float4(input.Normal, 1), World).xyz);
+    output.Normal = normalize(mul(float4(input.Normal, 0), World).xyz);
     
     if (HasNormalMap)
     {
@@ -120,7 +120,7 @@ PS_PHONG_INPUT VSPhong(VS_INPUT input)
     return output;
 }
 
-PS_LIGHT_CUBE_INPUT VSLightCube(VS_INPUT input)
+PS_LIGHT_CUBE_INPUT VSLightCube(VS_PHONG_INPUT input)
 {
     PS_LIGHT_CUBE_INPUT output = (PS_LIGHT_CUBE_INPUT) 0;
     output.Position = mul(input.Position, World);

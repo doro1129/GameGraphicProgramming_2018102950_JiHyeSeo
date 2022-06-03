@@ -625,6 +625,20 @@ namespace library
                             iRenderable->second->GetMaterial(materialIndex)->pDiffuse->GetSamplerState().GetAddressOf()
                         );
 
+                        if (iRenderable->second->HasNormalMap())
+                        {
+                            m_immediateContext->PSSetShaderResources(
+                                1, 
+                                1, 
+                                iRenderable->second->GetMaterial(materialIndex)->pNormal->GetTextureResourceView().GetAddressOf()
+                            );
+                            m_immediateContext->PSSetSamplers(
+                                1, 
+                                1,
+                                iRenderable->second->GetMaterial(materialIndex)->pNormal->GetSamplerState().GetAddressOf()
+                            );
+                        }
+
                         //Draw with texture
                         m_immediateContext->DrawIndexed(
                             iRenderable->second->GetMesh(i).uNumIndices,

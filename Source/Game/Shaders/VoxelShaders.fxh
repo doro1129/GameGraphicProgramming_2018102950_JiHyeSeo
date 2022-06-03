@@ -102,7 +102,7 @@ PS_INPUT VSVoxel(VS_INPUT input)
     output.Position = mul(output.Position, Projection);
     
     output.TexCoord = input.TexCoord;
-    output.Normal = normalize(mul(float4(input.Normal, 1), World).xyz);
+    output.Normal = normalize(mul(float4(input.Normal, 0), World).xyz);
 
     if (HasNormalMap)
     {
