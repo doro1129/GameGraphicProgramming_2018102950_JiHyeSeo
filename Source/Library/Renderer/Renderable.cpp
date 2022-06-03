@@ -88,8 +88,7 @@ namespace library
             return hr;
         }
 
-        //If renderable has texture and 'm_aNormaldata' is empty
-        if (HasTexture() && m_aNormalData.empty())
+        if (m_aNormalData.empty())
         {
             calculateNormalMapVectors();
         }
