@@ -88,6 +88,10 @@ namespace library
         m_globalInverseTransform(XMMATRIX())
     { }
 
+    Model::~Model()
+    {
+        delete m_pScene;
+    }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Model::Initialize
@@ -109,9 +113,10 @@ namespace library
         //Read the 3d model file using Assimp importer, and store the read scene
         m_pScene = sm_pImporter->ReadFile(
             m_filePath.string().c_str(),
-            aiProcess_Triangulate | aiProcess_GenSmoothNormals | 
-            aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded
+            ASSIMP_LOAD_FLAGS
         );
+
+        m_pScene = sm_pImporter->GetOrphanedScene();
 
         //If a valid scene is returned,
         if (m_pScene)
