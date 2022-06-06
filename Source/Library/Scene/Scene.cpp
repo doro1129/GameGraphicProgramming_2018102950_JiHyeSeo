@@ -229,7 +229,7 @@ namespace library
             }
         }
 
-        if (!m_skyBox)
+        if (m_skyBox)
         {
             HRESULT hr = m_skyBox->Initialize(pDevice, pImmediateContext);
             if (FAILED(hr))
@@ -459,8 +459,11 @@ namespace library
         {
             m_aPointLights[lightIdx]->Update(deltaTime);
         }
-
-        m_skyBox->Update(deltaTime);
+        
+        if (m_skyBox)
+        {
+            m_skyBox->Update(deltaTime);
+        }
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
