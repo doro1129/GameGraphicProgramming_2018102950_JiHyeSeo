@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
-#define NUM_LIGHTS (1)
+#define NUM_LIGHTS (2)
 #define NEAR_PLANE (0.01f)
 #define FAR_PLANE (1000.0f)
 
@@ -48,12 +48,19 @@ cbuffer cbChangesEveryFrame : register(b2)
     bool HasNormalMap;
 };
 
+struct PointLight
+{
+    float4 Position;
+    float4 Color;
+    float4 AttentionDistance;
+};
+
 cbuffer cbLights : register(b3)
 {
-    float4 LightPositions[NUM_LIGHTS];
-    float4 LightColors[NUM_LIGHTS];
-	matrix LightViews[NUM_LIGHTS];
-	matrix LightProjections[NUM_LIGHTS];
+    //float4 LightPositions[NUM_LIGHTS];
+    //float4 LightColors[NUM_LIGHTS];
+	//float LightAttenuationDistance[NUM_LIGHTS];
+    PointLight PointLights[NUM_LIGHTS];
 };
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
@@ -114,8 +121,8 @@ PS_PHONG_INPUT VSPhong(VS_PHONG_INPUT input)
     output.WorldPosition = mul(input.Position, World);
     
     output.LightViewPosition = mul(input.Position, World);
-    output.LightViewPosition = mul(output.LightViewPosition, LightViews[0]);
-    output.LightViewPosition = mul(output.LightViewPosition, LightProjections[0]);
+    //output.LightViewPosition = mul(output.LightViewPosition, LightViews[0]);
+    //output.LightViewPosition = mul(output.LightViewPosition, LightProjections[0]);
 
     return output;
 }
@@ -140,23 +147,7 @@ float LinearizeDepth(float depth)
 // Pixel Shader
 //--------------------------------------------------------------------------------------
 float4 PSPhong(PS_PHONG_INPUT input) : SV_Target
-{
-    float4 color = aTextures[0].Sample(aSamplers[0], input.TexCoord);
-    float3 ambient = float3(0.1f, 0.1f, 0.1f) * color.rgb;
-    
-    float2 depthTexCoord;
-    depthTexCoord.x = input.LightViewPosition.x / input.LightViewPosition.w / 2.0f + 0.5f;
-    depthTexCoord.y = -input.LightViewPosition.y / input.LightViewPosition.w / 2.0f + 0.5f;
-    
-    float closestDepth = shadowMapTexture.Sample(shadowMapSampler, depthTexCoord).r;
-    float currentDepth = input.LightViewPosition.z / input.LightViewPosition.w;
-    
-    closestDepth = LinearizeDepth(closestDepth);
-    currentDepth = LinearizeDepth(currentDepth);
-    
-    if (currentDepth > closestDepth + 0.001f)
-        return float4(ambient, 1.0f);
-    
+{   
     float3 normal = normalize(input.Normal);
     
     if (HasNormalMap)
@@ -174,20 +165,22 @@ float4 PSPhong(PS_PHONG_INPUT input) : SV_Target
         normal = normalize(bumpNormal);
     }
     
-    ambient = float3(0.1f, 0.1f, 0.1f);
+    float3 ambient = float3(0.1f, 0.1f, 0.1f);
     float3 store_ambient = float3(0.0f, 0.0f, 0.0f);
     float3 diffuse = float3(0.0f, 0.0f, 0.0f);
     float3 viewDirection = normalize(input.WorldPosition - CameraPosition.xyz);
     float3 specular = float3(0.0f, 0.0f, 0.0f);
     for (uint i = 0; i < NUM_LIGHTS; ++i)
     {
-        store_ambient += ambient * aTextures[0].Sample(aSamplers[0], input.TexCoord).xyz * LightColors[i].xyz;
+        float squaredR = dot(input.WorldPosition - PointLights[i].Position.xyz, input.WorldPosition - PointLights[i].Position.xyz);
+        float lightAttenuation = saturate(PointLights[i].AttentionDistance.z / (squaredR + 0.000001f));
+        store_ambient += ambient * aTextures[0].Sample(aSamplers[0], input.TexCoord).xyz * PointLights[i].Color.xyz * lightAttenuation;
     
-        float3 lightDirection = normalize(input.WorldPosition - LightPositions[i].xyz);
-        diffuse += max(dot(normalize(normal), -lightDirection), 0.0f) * LightColors[i].xyz * aTextures[0].Sample(aSamplers[0], input.TexCoord).xyz;
+        float3 lightDirection = normalize(input.WorldPosition - PointLights[i].Position.xyz);
+        diffuse += max(dot(normalize(normal), -lightDirection), 0.0f) * PointLights[i].Color.xyz * aTextures[0].Sample(aSamplers[0], input.TexCoord).xyz * lightAttenuation;
     
         float3 reflectDirection = normalize(reflect(lightDirection, normal));
-        specular += pow(max(dot(-viewDirection, reflectDirection), 0.0f), 20.0f) * LightColors[i].xyz * aTextures[0].Sample(aSamplers[0], input.TexCoord).xyz;
+        specular += pow(max(dot(-viewDirection, reflectDirection), 0.0f), 20.0f) * PointLights[i].Color.xyz * aTextures[0].Sample(aSamplers[0], input.TexCoord).xyz * lightAttenuation;
     }
 
     return float4(saturate(specular + diffuse + store_ambient), 1.0f);
