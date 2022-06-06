@@ -285,7 +285,6 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     XMFLOAT4 color;
     XMStoreFloat4(&color, Colors::Orange);
-
     std::shared_ptr<library::PointLight> directionalLight = std::make_shared<library::PointLight>(
         XMFLOAT4(0.f, 30.f, 0.f, 1.0f),
         color,
@@ -310,7 +309,7 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     {
         return 0;
     }
-
+    
     XMStoreFloat4(&color, Colors::White);
     std::shared_ptr<RotatingPointLight> rotatingDirectionalLight = std::make_shared<RotatingPointLight>(
         XMFLOAT4(0.0f, 300.0f, 0.0f, 1.0f),
@@ -321,12 +320,10 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     {
         return 0;
     }
-
     if (FAILED(game->GetRenderer()->AddScene(L"VoxelMap", mainScene)))
     {
         return 0;
     }
-
     if (FAILED(game->GetRenderer()->SetMainScene(L"VoxelMap")))
     {
         return 0;
@@ -349,7 +346,6 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     std::shared_ptr<Cube> floorCube = std::make_shared<Cube>(color);
     floorCube->Translate(XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f));
     floorCube->Scale(80.0f, 0.1f, 80.0f);
-
     if (FAILED(mainScene->AddRenderable(L"FloorCube", floorCube)))
     {
         return 0;
@@ -369,11 +365,10 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     {
         return 0;
     }
-
     floorCube->AddMaterial(floorMaterial);
 
     std::shared_ptr<Cube> ENVCube = std::make_shared<Cube>(color);
-    ENVCube->Translate(XMVectorSet(0.0f, 10.0f, 0.0f, 1.0f));
+    ENVCube->Translate(XMVectorSet(0.0f, 3.0f, 0.0f, 1.0f));
     floorCube->Scale(2.0f, 2.0f, 2.0f);
     if (FAILED(mainScene->AddRenderable(L"ENVCube", ENVCube)))
     {

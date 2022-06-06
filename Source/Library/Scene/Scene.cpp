@@ -31,8 +31,7 @@ namespace library
         , m_aPointLights{ nullptr }
         , m_vertexShaders()
         , m_pixelShaders()
-        , m_materials()
-        , m_skyBox{ nullptr }
+        , m_skyBox()
     {
         std::ifstream inputFile;
         inputFile.open(m_filePath.string());
@@ -160,7 +159,7 @@ namespace library
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Scene::Initialize
 
-      Summary:  Initializes the voxels, shaders, renderables, models, 
+      Summary:  Initializes the voxels, shaders, renderables, models,
                 and skybox
 
       Args:     ID3D11Device* pDevice
@@ -219,7 +218,7 @@ namespace library
                 AddMaterial(it->second->GetMaterial(i));
             }
         }
-        
+
         for (auto it = m_materials.begin(); it != m_materials.end(); ++it)
         {
             HRESULT hr = it->second->Initialize(pDevice, pImmediateContext);
@@ -228,7 +227,6 @@ namespace library
                 return hr;
             }
         }
-
         if (m_skyBox)
         {
             HRESULT hr = m_skyBox->Initialize(pDevice, pImmediateContext);
@@ -237,7 +235,6 @@ namespace library
                 return hr;
             }
         }
-
         return S_OK;
     }
 
@@ -397,7 +394,6 @@ namespace library
 
         return S_OK;
     }
-
     HRESULT Scene::AddMaterial(_In_ const std::shared_ptr<Material>& material)
     {
         if (m_materials.contains(material->GetName()))
@@ -437,7 +433,7 @@ namespace library
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Scene::Update
 
-      Summary:  Update the renderables, models, point lights, skybox 
+      Summary:  Update the renderables, models, point lights, skybox
                 each frame
 
       Args:     FLOAT deltaTime
@@ -445,25 +441,6 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     void Scene::Update(_In_ FLOAT deltaTime)
     {
-        for (auto it = m_renderables.begin(); it != m_renderables.end(); ++it)
-        {
-            it->second->Update(deltaTime);
-        }
-
-        for (auto it = m_models.begin(); it != m_models.end(); ++it)
-        {
-            it->second->Update(deltaTime);
-        }
-
-        for (UINT lightIdx = 0; lightIdx < NUM_LIGHTS; ++lightIdx)
-        {
-            m_aPointLights[lightIdx]->Update(deltaTime);
-        }
-        
-        if (m_skyBox)
-        {
-            m_skyBox->Update(deltaTime);
-        }
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M

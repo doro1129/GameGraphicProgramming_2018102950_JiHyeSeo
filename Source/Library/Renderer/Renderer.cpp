@@ -5,7 +5,9 @@ namespace library
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderer::Renderer
+
       Summary:  Constructor
+
       Modifies: [m_driverType, m_featureLevel, m_d3dDevice, m_d3dDevice1,
                   m_immediateContext, m_immediateContext1, m_swapChain,
                   m_swapChain1, m_renderTargetView, m_depthStencil,
@@ -27,30 +29,34 @@ namespace library
         , m_depthStencil()
         , m_depthStencilView()
         , m_cbChangeOnResize()
-        , m_cbLights()
-        , m_cbShadowMatrix()
         , m_pszMainSceneName(nullptr)
         , m_padding{ '\0' }
         , m_camera(XMVectorSet(0.0f, 3.0f, -6.0f, 0.0f))
         , m_projection()
         , m_scenes()
         , m_invalidTexture(std::make_shared<Texture>(L"Content/Common/InvalidTexture.png"))
+        , m_cbShadowMatrix()
         , m_shadowMapTexture()
         , m_shadowVertexShader()
         , m_shadowPixelShader()
-    { }
+    {
+    }
 
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderer::Initialize
+
       Summary:  Creates Direct3D device and swap chain
+
       Args:     HWND hWnd
                   Handle to the window
+
       Modifies: [m_d3dDevice, m_featureLevel, m_immediateContext,
                   m_d3dDevice1, m_immediateContext1, m_swapChain1,
                   m_swapChain, m_renderTargetView, m_vertexShader,
                   m_vertexLayout, m_pixelShader, m_vertexBuffer
                   m_cbShadowMatrix].
+
       Returns:  HRESULT
                   Status code
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -277,19 +283,11 @@ namespace library
         {
             return hr;
         }
-
-        D3D11_BUFFER_DESC cbShadowMatrix =
-        {
-            .ByteWidth = sizeof(CBShadowMatrix),
-            .Usage = D3D11_USAGE_DEFAULT,
-            .BindFlags = D3D11_BIND_CONSTANT_BUFFER,
-            .CPUAccessFlags = 0
-        };
-        hr = m_d3dDevice->CreateBuffer(&cbShadowMatrix, nullptr, m_cbShadowMatrix.GetAddressOf());
-        if (FAILED(hr))
-        {
-            return hr;
-        }
+        bd.ByteWidth = sizeof(CBShadowMatrix);
+        bd.Usage = D3D11_USAGE_DEFAULT;
+        bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        bd.CPUAccessFlags = 0u;
+        hr = m_d3dDevice->CreateBuffer(&bd, nullptr, m_cbShadowMatrix.GetAddressOf());
 
         m_camera.Initialize(m_d3dDevice.Get());
 
@@ -311,9 +309,8 @@ namespace library
         }
 
         return S_OK;
+
     }
-
-
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderer::AddScene
       Summary:  Add scene to renderer
@@ -377,14 +374,16 @@ namespace library
 
         return S_OK;
     }
-
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderer::SetShadowMapShaders
+
       Summary:  Set shaders for the shadow mapping
+
       Args:     std::shared_ptr<ShadowVertexShader>
                   vertex shader
                 std::shared_ptr<PixelShader>
                   pixel shader
+
       Modifies: [m_shadowVertexShader, m_shadowPixelShader].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     void Renderer::SetShadowMapShaders(_In_ std::shared_ptr<ShadowVertexShader> vertexShader, _In_ std::shared_ptr<PixelShader> pixelShader)
@@ -395,12 +394,12 @@ namespace library
 
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-      Method:   Renderer::HandleInput
-      Summary:  Handle user mouse input
-      Args:     DirectionsInput& directions
-                MouseRelativeMovement& mouseRelativeMovement
-                FLOAT deltaTime
-    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+     Method:   Renderer::HandleInput
+     Summary:  Handle user mouse input
+     Args:     DirectionsInput& directions
+               MouseRelativeMovement& mouseRelativeMovement
+               FLOAT deltaTime
+   M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     void Renderer::HandleInput(_In_ const DirectionsInput& directions, _In_ const MouseRelativeMovement& mouseRelativeMovement, _In_ FLOAT deltaTime)
     {
         m_camera.HandleInput(directions, mouseRelativeMovement, deltaTime);
@@ -427,47 +426,37 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     void Renderer::Render()
     {
-        //RenderSceneToTexture();
 
-        //Clear the back buffer
-        m_immediateContext->ClearRenderTargetView(
-            m_renderTargetView.Get(),
-            Colors::MidnightBlue
-        );
+        // Clear the back buffer 
+        m_immediateContext->ClearRenderTargetView(m_renderTargetView.Get(), Colors::MidnightBlue);
 
-        //Clear the depth buffer to 1.0 (maximum depth)
-        m_immediateContext->ClearDepthStencilView(
-            m_depthStencilView.Get(),
-            D3D11_CLEAR_DEPTH,
-            1.0f,
-            0
-        );
+        // Clear the depth buffer to 1.0 (max depth)
+        m_immediateContext->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-        //Create camera constant buffer and update
         XMFLOAT4 cameraPosition = XMFLOAT4();
         XMStoreFloat4(&cameraPosition, m_camera.GetEye());
-        CBChangeOnCameraMovement cb = {
-            .View = XMMatrixTranspose(m_camera.GetView()),
-            .CameraPosition = cameraPosition
+        CBChangeOnCameraMovement cbChangeOnCamera = {
+               .View = XMMatrixTranspose(m_camera.GetView()),
+               .CameraPosition = cameraPosition
         };
         m_immediateContext->UpdateSubresource(
             m_camera.GetConstantBuffer().Get(),
-            0u,
+            0,
             nullptr,
-            &cb,
-            0u,
-            0u
+            &cbChangeOnCamera,
+            0,
+            0
         );
-
         for (auto iScene = m_scenes.begin(); iScene != m_scenes.end(); iScene++)
         {
-            //Update the lights constant buffer
-            CBLights cb1 = {};
+            CBLights cbLight = {
+                .PointLights = {}
+            };
             for (int i = 0; i < NUM_LIGHTS; i++)
             {
                 FLOAT attenuationDistance = iScene->second->GetPointLight(i)->GetAttenuationDistance();
                 FLOAT attenuationDistanceSquared = attenuationDistance * attenuationDistance;
-                cb1.PointLights[i] = {
+                cbLight.PointLights[i] = {
                     .LightPositions = iScene->second->GetPointLight(i)->GetPosition(),
                     .LightColors = iScene->second->GetPointLight(i)->GetColor(),
                     .AttenuationDistance = XMFLOAT4(
@@ -480,556 +469,281 @@ namespace library
             }
             m_immediateContext->UpdateSubresource(
                 m_cbLights.Get(),
-                0u,
+                0,
                 nullptr,
-                &cb1,
-                0u,
-                0u
+                &cbLight,
+                0,
+                0
             );
-
-            //For each renderables (provided by main scene)
             for (auto iRenderable = iScene->second->GetRenderables().begin(); iRenderable != iScene->second->GetRenderables().end(); iRenderable++)
             {
-                UINT uStrides[2] = { sizeof(SimpleVertex), sizeof(NormalData) };
-                UINT uOffsets[2] = { 0u, 0u };
-                ComPtr<ID3D11Buffer> aBuffers[2] =
-                {
-                    iRenderable->second->GetVertexBuffer(),
-                    iRenderable->second->GetNormalBuffer()
-                };
-                //Set the vertex buffer, index buffer, and the input layout
-                m_immediateContext->IASetVertexBuffers(
-                    0u,
-                    2u,
-                    aBuffers->GetAddressOf(),
-                    uStrides,
-                    uOffsets
-                );
-                m_immediateContext->IASetIndexBuffer(
-                    iRenderable->second->GetIndexBuffer().Get(),
-                    DXGI_FORMAT_R16_UINT,
-                    0
-                );
+                UINT strides[2] = { sizeof(SimpleVertex), sizeof(NormalData) };
+                UINT offsets[2] = { 0, 0 };
+                ComPtr<ID3D11Buffer> vertexNormalBuffers[2] = { iRenderable->second->GetVertexBuffer(), iRenderable->second->GetNormalBuffer() };
+                m_immediateContext->IASetVertexBuffers(0, 2, vertexNormalBuffers->GetAddressOf(), strides, offsets);
+                m_immediateContext->IASetIndexBuffer(iRenderable->second->GetIndexBuffer().Get(), DXGI_FORMAT_R16_UINT, 0);
                 m_immediateContext->IASetInputLayout(iRenderable->second->GetVertexLayout().Get());
 
-                //Create renderable constant buffer and update
-                CBChangesEveryFrame cbChangesEveryFrame = {
-                .World = XMMatrixTranspose(iRenderable->second->GetWorldMatrix()),
-                .OutputColor = iRenderable->second->GetOutputColor(),
-                .HasNormalMap = iRenderable->second->HasNormalMap()
+
+                CBChangesEveryFrame cb = {
+                    .World = XMMatrixTranspose(iRenderable->second->GetWorldMatrix()),
+                    .OutputColor = iRenderable->second->GetOutputColor(),
+                    .HasNormalMap = iRenderable->second->HasNormalMap()
                 };
                 m_immediateContext->UpdateSubresource(
                     iRenderable->second->GetConstantBuffer().Get(),
-                    0u,
-                    nullptr,
-                    &cbChangesEveryFrame,
-                    0u,
-                    0u
-                );
-
-                //Set Shaders and Constant Buffers, Shader Resources, and Samplers
-                m_immediateContext->VSSetShader(
-                    iRenderable->second->GetVertexShader().Get(),
-                    nullptr,
-                    0
-                );
-                m_immediateContext->VSSetConstantBuffers(
                     0,
-                    1,
-                    m_camera.GetConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->VSSetConstantBuffers(
-                    1,
-                    1,
-                    m_cbChangeOnResize.GetAddressOf()
-                );
-                m_immediateContext->VSSetConstantBuffers(
-                    2,
-                    1,
-                    iRenderable->second->GetConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->VSSetConstantBuffers(
-                    3,
-                    1,
-                    m_cbLights.GetAddressOf()
-                );
-                m_immediateContext->PSSetConstantBuffers(
+                    nullptr,
+                    &cb,
                     0,
-                    1,
-                    m_camera.GetConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->PSSetConstantBuffers(
-                    2,
-                    1,
-                    iRenderable->second->GetConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->PSSetConstantBuffers(
-                    3,
-                    1,
-                    m_cbLights.GetAddressOf()
-                );
-                m_immediateContext->PSSetShader(
-                    iRenderable->second->GetPixelShader().Get(),
-                    nullptr,
                     0
                 );
 
-                eTextureSamplerType textureSamplerType = iScene->second->GetSkyBox()->GetSkyboxTexture()->GetSamplerType();
-                m_immediateContext->PSSetShaderResources(
-                    2,
-                    1,
-                    iScene->second->GetSkyBox()->GetSkyboxTexture()->GetTextureResourceView().GetAddressOf()
-                );
-                m_immediateContext->PSSetSamplers(
-                    2,
-                    1,
-                    Texture::s_samplers[static_cast<size_t>(textureSamplerType)].GetAddressOf()
-                );
 
-                if (iRenderable->second->HasTexture())
-                {
-                    for (UINT i = 0; i < iRenderable->second->GetNumMeshes(); ++i)
-                    {
-                        UINT materialIndex = iRenderable->second->GetMesh(i).uMaterialIndex;
-                        assert(materialIndex < iRenderable->second->GetNumMaterials());
+                m_immediateContext->VSSetShader(iRenderable->second->GetVertexShader().Get(), nullptr, 0);
+                m_immediateContext->VSSetConstantBuffers(0, 1, m_camera.GetConstantBuffer().GetAddressOf());
+                m_immediateContext->VSSetConstantBuffers(1, 1, m_cbChangeOnResize.GetAddressOf());
+                m_immediateContext->VSSetConstantBuffers(2, 1, iRenderable->second->GetConstantBuffer().GetAddressOf());
+                m_immediateContext->VSSetConstantBuffers(3, 1, m_cbLights.GetAddressOf());
+                m_immediateContext->PSSetConstantBuffers(0, 1, m_camera.GetConstantBuffer().GetAddressOf());
+                m_immediateContext->PSSetConstantBuffers(2, 1, iRenderable->second->GetConstantBuffer().GetAddressOf());
+                m_immediateContext->PSSetConstantBuffers(3, 1, m_cbLights.GetAddressOf());
+                m_immediateContext->PSSetShader(iRenderable->second->GetPixelShader().Get(), nullptr, 0);
 
-                        eTextureSamplerType textureSamplerType = iRenderable->second->GetMaterial(materialIndex)->pDiffuse->GetSamplerType();
-                        m_immediateContext->PSSetShaderResources(
-                            0,
-                            1,
-                            iRenderable->second->GetMaterial(materialIndex)->pDiffuse->GetTextureResourceView().GetAddressOf()
-                        );
-                        m_immediateContext->PSSetSamplers(
-                            0,
-                            1,
-                            Texture::s_samplers[static_cast<size_t>(textureSamplerType)].GetAddressOf()
-                        );
 
-                        if (iRenderable->second->HasNormalMap())
-                        {
-                            textureSamplerType = iRenderable->second->GetMaterial(materialIndex)->pNormal->GetSamplerType();
-                            m_immediateContext->PSSetShaderResources(
-                                1,
-                                1,
-                                iRenderable->second->GetMaterial(materialIndex)->pNormal->GetTextureResourceView().GetAddressOf()
-                            );
-                            m_immediateContext->PSSetSamplers(
-                                1,
-                                1,
-                                Texture::s_samplers[static_cast<size_t>(textureSamplerType)].GetAddressOf()
-                            );
-                        }
-
-                        //Draw with texture
-                        m_immediateContext->DrawIndexed(
-                            iRenderable->second->GetMesh(i).uNumIndices,
-                            iRenderable->second->GetMesh(i).uBaseIndex,
-                            iRenderable->second->GetMesh(i).uBaseVertex
-                        );
-                    }
-                }
-                else
-                {
-                    //Draw without texture
-                    m_immediateContext->DrawIndexed(iRenderable->second->GetNumIndices(), 0, 0);
-                }
-            }
-
-            //Render voxels of the main scene
-            std::vector<std::shared_ptr<Voxel>> voxel = iScene->second->GetVoxels();
-            for (UINT i = 0; i < voxel.size(); i++)
-            {
-                UINT uStrides[3] = {
-                static_cast<UINT>(sizeof(SimpleVertex)),
-                static_cast<UINT>(sizeof(NormalData)),
-                static_cast<UINT>(sizeof(InstanceData)) };
-                UINT uOffsets[3] = { 0u, 0u, 0u };
-                ComPtr<ID3D11Buffer> VoxelBuffers[3] = {
-                    voxel[i]->GetVertexBuffer(),
-                    voxel[i]->GetNormalBuffer(),
-                    voxel[i]->GetInstanceBuffer()
-                };
-
-                //Set the buffers, and input layout
-                m_immediateContext->IASetVertexBuffers(
-                    0u,
-                    3u,
-                    VoxelBuffers->GetAddressOf(),
-                    uStrides,
-                    uOffsets
-                );
-                m_immediateContext->IASetIndexBuffer(
-                    voxel[i]->GetIndexBuffer().Get(),
-                    DXGI_FORMAT_R16_UINT,
-                    0
-                );
-                m_immediateContext->IASetInputLayout(voxel[i]->GetVertexLayout().Get());
-
-                //Update the constant buffers
-                CBChangesEveryFrame cbChangesEveryFrame = {
-                .World = XMMatrixTranspose(voxel[i]->GetWorldMatrix()),
-                .OutputColor = voxel[i]->GetOutputColor(),
-                .HasNormalMap = voxel[i]->HasNormalMap()
-                };
-                m_immediateContext->UpdateSubresource(
-                    voxel[i]->GetConstantBuffer().Get(),
-                    0u,
-                    nullptr,
-                    &cbChangesEveryFrame,
-                    0u,
-                    0u
-                );
-
-                //Set the shaders and their input
-                m_immediateContext->VSSetShader(
-                    voxel[i]->GetVertexShader().Get(),
-                    nullptr,
-                    0
-                );
-                m_immediateContext->VSSetConstantBuffers(
-                    0,
-                    1,
-                    m_camera.GetConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->VSSetConstantBuffers(
-                    1,
-                    1,
-                    m_cbChangeOnResize.GetAddressOf()
-                );
-                m_immediateContext->VSSetConstantBuffers(
-                    2,
-                    1,
-                    voxel[i]->GetConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->VSSetConstantBuffers(
-                    3,
-                    1,
-                    m_cbLights.GetAddressOf()
-                );
-                m_immediateContext->PSSetConstantBuffers(
-                    0,
-                    1,
-                    m_camera.GetConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->PSSetConstantBuffers(
-                    2,
-                    1,
-                    voxel[i]->GetConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->PSSetConstantBuffers(
-                    3,
-                    1,
-                    m_cbLights.GetAddressOf()
-                );
-                m_immediateContext->PSSetShader(
-                    voxel[i]->GetPixelShader().Get(),
-                    nullptr,
-                    0
-                );
-
-                if (voxel[i]->HasTexture())
-                {
-                    for (UINT j = 0; j < voxel[i]->GetNumMeshes(); ++j)
-                    {
-                        UINT materialIndex = voxel[i]->GetMesh(j).uMaterialIndex;
-                        assert(materialIndex < voxel[i]->GetNumMaterials());
-
-                        ComPtr<ID3D11ShaderResourceView> aShaderResources[2] =
-                        {
-                            voxel[i]->GetMaterial(materialIndex)->pDiffuse->GetTextureResourceView(),
-                            voxel[i]->GetMaterial(materialIndex)->pNormal->GetTextureResourceView()
-                        };
-                        ComPtr<ID3D11SamplerState> aSamplerStates[2] =
-                        { 
-                            Texture::s_samplers[static_cast<size_t>(voxel[i]->GetMaterial(materialIndex)->pDiffuse->GetSamplerType())],
-                            Texture::s_samplers[static_cast<size_t>(voxel[i]->GetMaterial(materialIndex)->pNormal->GetSamplerType())]                        
-                        };
-                        m_immediateContext->PSSetShaderResources(
-                            0,
-                            2,
-                            aShaderResources->GetAddressOf()
-                        );
-                        m_immediateContext->PSSetSamplers(
-                            0,
-                            2,
-                            aSamplerStates->GetAddressOf()
-                        );
-                    }
-                }
-
-                m_immediateContext->DrawIndexedInstanced(voxel[i]->GetNumIndices(), voxel[i]->GetNumInstances(), 0, 0, 0);
-            }
-
-            //Render the models
-            for (auto iModel = iScene->second->GetModels().begin(); iModel != iScene->second->GetModels().end(); iModel++)
-            {
-                UINT aStrides[2] = {
-                static_cast<UINT>(sizeof(SimpleVertex)),
-                static_cast<UINT>(sizeof(NormalData)) };
-                UINT aOffsets[2] = { 0u, 0u };
-                ComPtr<ID3D11Buffer> aBuffers[2] =
-                {
-                    iModel->second->GetVertexBuffer().Get(),
-                    iModel->second->GetNormalBuffer().Get()
-                };
-
-                //Set the buffers, and input layout
-                m_immediateContext->IASetVertexBuffers(
-                    0u,
-                    2u,
-                    aBuffers->GetAddressOf(),
-                    aStrides,
-                    aOffsets
-                );
-                m_immediateContext->IASetIndexBuffer(
-                    iModel->second->GetIndexBuffer().Get(),
-                    DXGI_FORMAT_R16_UINT,
-                    0u
-                );
-                m_immediateContext->IASetInputLayout(iModel->second->GetVertexLayout().Get());
-
-                //Update the constant buffers
-                CBChangesEveryFrame cbChangesEveryFrame = {
-                .World = XMMatrixTranspose(iModel->second->GetWorldMatrix()),
-                .OutputColor = iModel->second->GetOutputColor(),
-                .HasNormalMap = iModel->second->HasNormalMap()
-                };
-                m_immediateContext->UpdateSubresource(
-                    iModel->second->GetConstantBuffer().Get(),
-                    0u,
-                    nullptr,
-                    &cbChangesEveryFrame,
-                    0u,
-                    0u
-                );
-
-                //Update and bind the constant buffer
-                CBSkinning cbSkinning = {
-                    .BoneTransforms = {}
-                };
-                for (UINT i = 0; i < iModel->second->GetBoneTransforms().size(); ++i)
-                {
-                    cbSkinning.BoneTransforms[i] = XMMatrixTranspose(iModel->second->GetBoneTransforms()[i]);
-                }
-
-                m_immediateContext->UpdateSubresource(
-                    iModel->second->GetSkinningConstantBuffer().Get(),
-                    0u,
-                    nullptr,
-                    &cbSkinning,
-                    0u,
-                    0u
-                );
-
-                //Set the shaders and their input
-                m_immediateContext->VSSetShader(
-                    iModel->second->GetVertexShader().Get(),
-                    nullptr,
-                    0
-                );
-                m_immediateContext->VSSetConstantBuffers(
-                    0,
-                    1,
-                    m_camera.GetConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->VSSetConstantBuffers(
-                    1,
-                    1,
-                    m_cbChangeOnResize.GetAddressOf()
-                );
-                m_immediateContext->VSSetConstantBuffers(
-                    2,
-                    1,
-                    iModel->second->GetConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->VSSetConstantBuffers(
-                    3,
-                    1,
-                    m_cbLights.GetAddressOf()
-                );
-                m_immediateContext->VSSetConstantBuffers(
-                    4,
-                    1,
-                    iModel->second->GetSkinningConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->PSSetConstantBuffers(
-                    0,
-                    1,
-                    m_camera.GetConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->PSSetConstantBuffers(
-                    2,
-                    1,
-                    iModel->second->GetConstantBuffer().GetAddressOf()
-                );
-                m_immediateContext->PSSetConstantBuffers(
-                    3,
-                    1,
-                    m_cbLights.GetAddressOf()
-                );
-                m_immediateContext->PSSetShader(
-                    iModel->second->GetPixelShader().Get(),
-                    nullptr,
-                    0
-                );
-
-                if (iModel->second->HasTexture())
-                {
-                    for (UINT i = 0; i < iModel->second->GetNumMeshes(); ++i)
-                    {
-                        UINT materialIndex = iModel->second->GetMesh(i).uMaterialIndex;
-                        assert(materialIndex < iModel->second->GetNumMaterials());
-
-                        ComPtr<ID3D11ShaderResourceView> aShaderResources[2] =
-                        {
-                            iModel->second->GetMaterial(materialIndex)->pDiffuse->GetTextureResourceView(),
-                            iModel->second->GetMaterial(materialIndex)->pNormal->GetTextureResourceView()
-                        };
-                        ComPtr<ID3D11SamplerState> aSamplerStates[2] =
-                        {
-                            Texture::s_samplers[static_cast<size_t>(iModel->second->GetMaterial(materialIndex)->pDiffuse->GetSamplerType())],
-                            Texture::s_samplers[static_cast<size_t>(iModel->second->GetMaterial(materialIndex)->pNormal->GetSamplerType())]
-                        };
-                        m_immediateContext->PSSetShaderResources(
-                            0,
-                            2,
-                            aShaderResources->GetAddressOf()
-                        );
-                        m_immediateContext->PSSetSamplers(
-                            0,
-                            2,
-                            aSamplerStates->GetAddressOf()
-                        );
-
-                        //Draw with texture
-                        m_immediateContext->DrawIndexed(
-                            iModel->second->GetMesh(i).uNumIndices,
-                            iModel->second->GetMesh(i).uBaseIndex,
-                            iModel->second->GetMesh(i).uBaseVertex
-                        );
-                    }
-                }
-                else
-                {
-                    //Draw without texture
-                    m_immediateContext->DrawIndexed(iModel->second->GetNumIndices(), 0, 0);
-                }
-
-                //Render the skybox
                 std::shared_ptr<Skybox> skybox = iScene->second->GetSkyBox();
                 if (skybox)
                 {
-                    UINT uStride = static_cast<UINT>(sizeof(SimpleVertex));
-                    UINT uOffset = 0u;
+                    eTextureSamplerType textureSamplerType = skybox->GetSkyboxTexture()->GetSamplerType();
+                    m_immediateContext->PSSetShaderResources(2, 1, skybox->GetSkyboxTexture()->GetTextureResourceView().GetAddressOf());
+                    m_immediateContext->PSSetSamplers(2, 1, Texture::s_samplers[static_cast<size_t>(textureSamplerType)].GetAddressOf());
+                }
 
-                    m_immediateContext->IASetVertexBuffers(
-                        0,
-                        1,
-                        skybox->GetVertexBuffer().GetAddressOf(),
-                        &uStride,
-                        &uOffset
-                    );
-                    m_immediateContext->IASetIndexBuffer(
-                        skybox->GetIndexBuffer().Get(),
-                        DXGI_FORMAT_R16_UINT,
-                        0
-                    );
-                    m_immediateContext->IASetInputLayout(skybox->GetVertexLayout().Get());
 
-                    CBChangesEveryFrame cbChangesEveryFrame = {
-                        .World = XMMatrixTranspose(skybox->GetWorldMatrix()),
-                        .OutputColor = skybox->GetOutputColor(),
-                        .HasNormalMap = skybox->HasNormalMap()
-                    };
-                    m_immediateContext->UpdateSubresource(
-                        skybox->GetConstantBuffer().Get(),
-                        0,
-                        nullptr,
-                        &cbChangesEveryFrame,
-                        0,
-                        0
-                    );
-
-                    m_immediateContext->VSSetShader(
-                        skybox->GetVertexShader().Get(),
-                        nullptr,
-                        0
-                    );
-                    m_immediateContext->VSSetConstantBuffers(
-                        0,
-                        1,
-                        m_camera.GetConstantBuffer().GetAddressOf()
-                    );
-                    m_immediateContext->VSSetConstantBuffers(
-                        1,
-                        1,
-                        m_cbChangeOnResize.GetAddressOf()
-                    );
-                    m_immediateContext->VSSetConstantBuffers(
-                        2,
-                        1,
-                        skybox->GetConstantBuffer().GetAddressOf()
-                    );
-                    m_immediateContext->PSSetConstantBuffers(
-                        0,
-                        1,
-                        m_camera.GetConstantBuffer().GetAddressOf()
-                    );
-                    m_immediateContext->PSSetConstantBuffers(
-                        2,
-                        1,
-                        skybox->GetConstantBuffer().GetAddressOf()
-                    );
-                    m_immediateContext->PSSetConstantBuffers(
-                        3,
-                        1,
-                        m_cbLights.GetAddressOf()
-                    );
-                    m_immediateContext->PSSetShader(
-                        skybox->GetPixelShader().Get(),
-                        nullptr,
-                        0
-                    );
-
-                    if (skybox->HasTexture())
+                if (iRenderable->second->HasTexture())
+                {
+                    for (UINT i = 0; i < iRenderable->second->GetNumMeshes(); i++)
                     {
-                        for (UINT i = 0; i < skybox->GetNumMeshes(); i++)
+                        UINT materialIndex = iRenderable->second->GetMesh(i).uMaterialIndex;
+                        eTextureSamplerType textureSamplerType = iRenderable->second->GetMaterial(materialIndex)->pDiffuse->GetSamplerType();
+                        m_immediateContext->PSSetShaderResources(0, 1, iRenderable->second->GetMaterial(materialIndex)->pDiffuse->GetTextureResourceView().GetAddressOf());
+                        m_immediateContext->PSSetSamplers(0, 1, Texture::s_samplers[static_cast<size_t>(textureSamplerType)].GetAddressOf());
+                        if (iRenderable->second->HasNormalMap())
                         {
-                            UINT materialIndex = iModel->second->GetMesh(i).uMaterialIndex;
-                            assert(materialIndex < iModel->second->GetNumMaterials());
-
-                            ComPtr<ID3D11ShaderResourceView> shaderResources = skybox->GetSkyboxTexture()->GetTextureResourceView();
-                            eTextureSamplerType textureSamplerType = skybox->GetMaterial(materialIndex)->pDiffuse->GetSamplerType();
-                            ComPtr<ID3D11SamplerState> samplerStates = Texture::s_samplers[static_cast<size_t>(textureSamplerType)];
-
-                            m_immediateContext->PSSetShaderResources(
-                                0,
-                                1,
-                                shaderResources.GetAddressOf()
-                            );
-                            m_immediateContext->PSSetSamplers(
-                                0,
-                                1,
-                                samplerStates.GetAddressOf()
-                            );
-                            m_immediateContext->DrawIndexed(
-                                skybox->GetMesh(i).uNumIndices,
-                                skybox->GetMesh(i).uBaseIndex,
-                                skybox->GetMesh(i).uBaseVertex
-                            );
+                            textureSamplerType = iRenderable->second->GetMaterial(materialIndex)->pNormal->GetSamplerType();
+                            m_immediateContext->PSSetShaderResources(1, 1, iRenderable->second->GetMaterial(materialIndex)->pNormal->GetTextureResourceView().GetAddressOf());
+                            m_immediateContext->PSSetSamplers(1, 1, Texture::s_samplers[static_cast<size_t>(textureSamplerType)].GetAddressOf());
                         }
-                    }
-                    else
-                    {
-                        m_immediateContext->DrawIndexed(skybox->GetNumIndices(), 0, 0);
+                        m_immediateContext->DrawIndexed(iRenderable->second->GetMesh(i).uNumIndices, iRenderable->second->GetMesh(i).uBaseIndex, iRenderable->second->GetMesh(i).uBaseVertex);
                     }
                 }
+                else
+                {
+                    m_immediateContext->DrawIndexed(iRenderable->second->GetNumIndices(), 0, 0);
+                }
+
             }
+            std::vector<std::shared_ptr<Voxel>> voxels = iScene->second->GetVoxels();
+            for (UINT i = 0u; i < voxels.size(); i++)
+            {
+                UINT strides[3] = { static_cast<UINT>(sizeof(SimpleVertex)), static_cast<UINT>(sizeof(NormalData)), static_cast<UINT>(sizeof(InstanceData)) };
+                UINT offsets[3] = { 0, 0,0 };
+
+                ComPtr<ID3D11Buffer> vertexNormalInstanceBuffers[3] = {
+                    voxels[i]->GetVertexBuffer(),
+                    voxels[i]->GetNormalBuffer(),
+                    voxels[i]->GetInstanceBuffer()
+                };
+
+                m_immediateContext->IASetVertexBuffers(0, 3, vertexNormalInstanceBuffers->GetAddressOf(), strides, offsets);
+                m_immediateContext->IASetIndexBuffer(voxels[i]->GetIndexBuffer().Get(), DXGI_FORMAT_R16_UINT, 0);
+                m_immediateContext->IASetInputLayout(voxels[i]->GetVertexLayout().Get());
+                CBChangesEveryFrame cb = {
+                    .World = XMMatrixTranspose(voxels[i]->GetWorldMatrix()),
+                    .OutputColor = voxels[i]->GetOutputColor(),
+                    .HasNormalMap = voxels[i]->HasNormalMap()
+                };
+                m_immediateContext->UpdateSubresource(
+                    voxels[i]->GetConstantBuffer().Get(),
+                    0,
+                    nullptr,
+                    &cb,
+                    0,
+                    0
+                );
+                m_immediateContext->VSSetShader(voxels[i]->GetVertexShader().Get(), nullptr, 0);
+                m_immediateContext->VSSetConstantBuffers(0, 1, m_camera.GetConstantBuffer().GetAddressOf());
+                m_immediateContext->VSSetConstantBuffers(1, 1, m_cbChangeOnResize.GetAddressOf());
+                m_immediateContext->VSSetConstantBuffers(2, 1, voxels[i]->GetConstantBuffer().GetAddressOf());
+                m_immediateContext->VSSetConstantBuffers(3, 1, m_cbLights.GetAddressOf());
+                m_immediateContext->PSSetConstantBuffers(0, 1, m_camera.GetConstantBuffer().GetAddressOf());
+                m_immediateContext->PSSetConstantBuffers(2, 1, voxels[i]->GetConstantBuffer().GetAddressOf());
+                m_immediateContext->PSSetConstantBuffers(3, 1, m_cbLights.GetAddressOf());
+                m_immediateContext->PSSetShader(voxels[i]->GetPixelShader().Get(), nullptr, 0);
+
+                if (voxels[i]->HasTexture())
+                {
+                    ComPtr<ID3D11ShaderResourceView> shaderResources[2] = { voxels[i]->GetMaterial(0)->pDiffuse->GetTextureResourceView(),
+                                                    voxels[i]->GetMaterial(0)->pNormal->GetTextureResourceView() };
+                    ComPtr<ID3D11SamplerState> samplerStates[2] = { nullptr,nullptr };
+                    eTextureSamplerType textureSamplerType = voxels[i]->GetMaterial(0)->pDiffuse->GetSamplerType();
+                    samplerStates[0] = Texture::s_samplers[static_cast<size_t>(textureSamplerType)];
+                    textureSamplerType = voxels[i]->GetMaterial(0)->pNormal->GetSamplerType();
+                    samplerStates[1] = Texture::s_samplers[static_cast<size_t>(textureSamplerType)];
+                    m_immediateContext->PSSetShaderResources(0, 2, shaderResources->GetAddressOf());
+                    m_immediateContext->PSSetSamplers(0, 2, samplerStates->GetAddressOf());
+                    m_immediateContext->DrawIndexedInstanced(voxels[i]->GetNumIndices(), voxels[i]->GetNumInstances(), 0, 0, 0);
+
+                }
+                else
+                {
+                    m_immediateContext->DrawIndexedInstanced(voxels[i]->GetNumIndices(), voxels[i]->GetNumInstances(), 0, 0, 0);
+                }
+            }
+
+            for (auto iModel = iScene->second->GetModels().begin(); iModel != iScene->second->GetModels().end(); iModel++)
+            {
+                UINT aStrides[2] = { static_cast<UINT>(sizeof(SimpleVertex)), static_cast<UINT>(sizeof(NormalData)) };
+                UINT aOffsets[2] = { 0u, 0u };
+                ComPtr<ID3D11Buffer> aBuffers[2] = { iModel->second->GetVertexBuffer(),iModel->second->GetNormalBuffer() };
+
+                m_immediateContext->IASetVertexBuffers(0, 2, aBuffers->GetAddressOf(), aStrides, aOffsets);
+                m_immediateContext->IASetIndexBuffer(iModel->second->GetIndexBuffer().Get(), DXGI_FORMAT_R16_UINT, 0);
+                m_immediateContext->IASetInputLayout(iModel->second->GetVertexLayout().Get());
+                CBChangesEveryFrame cbChangeEveryFrame = {
+                    .World = XMMatrixTranspose(iModel->second->GetWorldMatrix()),
+                    .OutputColor = iModel->second->GetOutputColor(),
+                    .HasNormalMap = iModel->second->HasNormalMap()
+                };
+                m_immediateContext->UpdateSubresource(
+                    iModel->second->GetConstantBuffer().Get(),
+                    0,
+                    nullptr,
+                    &cbChangeEveryFrame,
+                    0,
+                    0
+                );
+                CBSkinning cbSkinning = {
+                    .BoneTransforms = {}
+                };
+                for (UINT i = 0; i < iModel->second->GetBoneTransforms().size(); i++)
+                {
+                    cbSkinning.BoneTransforms[i] = XMMatrixTranspose(iModel->second->GetBoneTransforms()[i]);
+                }
+                m_immediateContext->UpdateSubresource(
+                    iModel->second->GetSkinningConstantBuffer().Get(),
+                    0,
+                    nullptr,
+                    &cbSkinning,
+                    0,
+                    0
+                );
+                m_immediateContext->VSSetConstantBuffers(0, 1, m_camera.GetConstantBuffer().GetAddressOf());
+                m_immediateContext->VSSetConstantBuffers(1, 1, m_cbChangeOnResize.GetAddressOf());
+                m_immediateContext->VSSetConstantBuffers(2, 1, iModel->second->GetConstantBuffer().GetAddressOf());
+                m_immediateContext->VSSetConstantBuffers(3, 1, m_cbLights.GetAddressOf());
+                m_immediateContext->VSSetConstantBuffers(4, 1, iModel->second->GetSkinningConstantBuffer().GetAddressOf());
+                m_immediateContext->VSSetShader(iModel->second->GetVertexShader().Get(), nullptr, 0);
+
+                m_immediateContext->PSSetConstantBuffers(0, 1, m_camera.GetConstantBuffer().GetAddressOf());
+                m_immediateContext->PSSetConstantBuffers(2, 1, iModel->second->GetConstantBuffer().GetAddressOf());
+                m_immediateContext->PSSetConstantBuffers(3, 1, m_cbLights.GetAddressOf());
+                m_immediateContext->PSSetShader(iModel->second->GetPixelShader().Get(), nullptr, 0);
+
+                if (iModel->second->HasTexture())
+                {
+                    for (UINT i = 0; i < iModel->second->GetNumMeshes(); i++)
+                    {
+                        UINT materialIndex = iModel->second->GetMesh(i).uMaterialIndex;
+                        if (iModel->second->GetMaterial(materialIndex)->pDiffuse)
+                        {
+                            eTextureSamplerType textureSamplerType = iModel->second->GetMaterial(materialIndex)->pDiffuse->GetSamplerType();
+                            m_immediateContext->PSSetShaderResources(0, 1, iModel->second->GetMaterial(materialIndex)->pDiffuse->GetTextureResourceView().GetAddressOf());
+                            m_immediateContext->PSSetSamplers(0, 1, Texture::s_samplers[static_cast<size_t>(textureSamplerType)].GetAddressOf());
+                        }
+                        if (iModel->second->GetMaterial(materialIndex)->pNormal)
+                        {
+                            eTextureSamplerType textureSamplerType = iModel->second->GetMaterial(materialIndex)->pNormal->GetSamplerType();
+                            m_immediateContext->PSSetShaderResources(1, 1, iModel->second->GetMaterial(materialIndex)->pNormal->GetTextureResourceView().GetAddressOf());
+                            m_immediateContext->PSSetSamplers(1, 1, Texture::s_samplers[static_cast<size_t>(textureSamplerType)].GetAddressOf());
+                        }
+                        m_immediateContext->DrawIndexed(iModel->second->GetMesh(i).uNumIndices, iModel->second->GetMesh(i).uBaseIndex, iModel->second->GetMesh(i).uBaseVertex);
+                    }
+                }
+                else
+                {
+                    m_immediateContext->DrawIndexed(iModel->second->GetNumIndices(), 0, 0);
+                }
+            }
+            //render sky box
+            std::shared_ptr<Skybox> skybox = iScene->second->GetSkyBox();
+            if (skybox)
+            {
+                UINT aStrides[1] = { static_cast<UINT>(sizeof(SimpleVertex)) };
+                UINT aOffsets[1] = { 0u };
+                ComPtr<ID3D11Buffer> aBuffers[1] = { skybox->GetVertexBuffer() };
+
+                m_immediateContext->IASetVertexBuffers(0, 1, aBuffers->GetAddressOf(), aStrides, aOffsets);
+                m_immediateContext->IASetIndexBuffer(skybox->GetIndexBuffer().Get(), DXGI_FORMAT_R16_UINT, 0);
+                m_immediateContext->IASetInputLayout(skybox->GetVertexLayout().Get());
+
+                XMVECTOR scale;
+                XMVECTOR rotation;
+                XMVECTOR translation;
+                XMMatrixDecompose(&scale, &rotation, &translation, skybox->GetWorldMatrix());
+
+                XMMATRIX skyboxTransform = XMMatrixIdentity();
+                skyboxTransform = XMMatrixScalingFromVector(scale) * XMMatrixRotationRollPitchYawFromVector(rotation) * XMMatrixTranslationFromVector(m_camera.GetEye());
+
+                CBChangesEveryFrame cbChangeEveryFrame = {
+                    .World = XMMatrixTranspose(skyboxTransform),
+                    .OutputColor = skybox->GetOutputColor(),
+                    .HasNormalMap = skybox->HasNormalMap()
+                };
+                m_immediateContext->UpdateSubresource(
+                    skybox->GetConstantBuffer().Get(),
+                    0,
+                    nullptr,
+                    &cbChangeEveryFrame,
+                    0,
+                    0
+                );
+                m_immediateContext->VSSetShader(skybox->GetVertexShader().Get(), nullptr, 0);
+                m_immediateContext->VSSetConstantBuffers(0, 1, m_camera.GetConstantBuffer().GetAddressOf());
+                m_immediateContext->VSSetConstantBuffers(1, 1, m_cbChangeOnResize.GetAddressOf());
+                m_immediateContext->VSSetConstantBuffers(2, 1, skybox->GetConstantBuffer().GetAddressOf());
+
+                m_immediateContext->PSSetShader(skybox->GetPixelShader().Get(), nullptr, 0);
+
+                if (skybox->HasTexture())
+                {
+                    for (UINT i = 0; i < skybox->GetNumMeshes(); i++)
+                    {
+                        UINT materialIndex = skybox->GetMesh(i).uMaterialIndex;
+                        ComPtr<ID3D11ShaderResourceView> shaderResources[1] = { skybox->GetSkyboxTexture()->GetTextureResourceView() };
+                        ComPtr<ID3D11SamplerState> samplerStates[1] = { nullptr };
+                        eTextureSamplerType textureSamplerType = skybox->GetMaterial(materialIndex)->pDiffuse->GetSamplerType();
+                        samplerStates[0] = Texture::s_samplers[static_cast<size_t>(textureSamplerType)];
+                        m_immediateContext->PSSetShaderResources(0, 1, shaderResources->GetAddressOf());
+                        m_immediateContext->PSSetSamplers(0, 1, samplerStates->GetAddressOf());
+                        m_immediateContext->DrawIndexed(skybox->GetMesh(i).uNumIndices, skybox->GetMesh(i).uBaseIndex, skybox->GetMesh(i).uBaseVertex);
+                    }
+                }
+                else
+                {
+                    m_immediateContext->DrawIndexed(skybox->GetNumIndices(), 0, 0);
+                }
+            }
+
+            // Present the information rendered to the back buffer to the front buffer (the screen)
+            m_swapChain->Present(0, 0);
         }
 
-        //Present
-        m_swapChain->Present(0, 0);
     }
+
+
+
+
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderer::GetDriverType
@@ -1041,4 +755,5 @@ namespace library
     {
         return m_driverType;
     }
+
 }
