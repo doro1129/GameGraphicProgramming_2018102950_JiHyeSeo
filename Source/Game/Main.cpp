@@ -274,8 +274,8 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     {
         return 0;
     }
-  
-    std::shared_ptr<library::Skybox> skybox = std::make_shared<library::Skybox>(L"Content/Common/Maskonaive2_1024.dds", 1000.0f);
+    
+    std::shared_ptr<library::Skybox> skybox = std::make_shared<library::Skybox>(L"Content/Common/Maskonaive2_1024.dds", 800.0f);
     skybox->SetVertexShader(cubeMapVertexShader);
     skybox->SetPixelShader(cubeMapPixelShader);
     if (FAILED(mainScene->AddSkyBox(skybox)))
@@ -285,6 +285,7 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     XMFLOAT4 color;
     XMStoreFloat4(&color, Colors::Orange);
+
     std::shared_ptr<library::PointLight> directionalLight = std::make_shared<library::PointLight>(
         XMFLOAT4(0.f, 30.f, 0.f, 1.0f),
         color,
@@ -309,21 +310,24 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     {
         return 0;
     }
-    
+
     XMStoreFloat4(&color, Colors::White);
     std::shared_ptr<RotatingPointLight> rotatingDirectionalLight = std::make_shared<RotatingPointLight>(
         XMFLOAT4(0.0f, 300.0f, 0.0f, 1.0f),
         color,
         400.0f
         );
-    if (FAILED(mainScene->AddPointLight(1, rotatingDirectionalLight)))
+    if (FAILED(mainScene->AddPointLight(1, rotatingDirectionalLigh
+        t)))
     {
         return 0;
     }
+
     if (FAILED(game->GetRenderer()->AddScene(L"VoxelMap", mainScene)))
     {
         return 0;
     }
+
     if (FAILED(game->GetRenderer()->SetMainScene(L"VoxelMap")))
     {
         return 0;
@@ -343,6 +347,7 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         return 0;
     }
 
+    /*
     std::shared_ptr<Cube> floorCube = std::make_shared<Cube>(color);
     floorCube->Translate(XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f));
     floorCube->Scale(80.0f, 0.1f, 80.0f);
@@ -366,10 +371,25 @@ INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         return 0;
     }
     floorCube->AddMaterial(floorMaterial);
+    
+    std::shared_ptr<library::Model> nanosuit = std::make_shared<library::Model>(L"Content/Nanosuit/nanosuit.obj");
+
+    if (FAILED(mainScene->AddModel(L"Nanosuit", nanosuit)))
+    {
+        return 0;
+    }
+    if (FAILED(mainScene->SetVertexShaderOfModel(L"Nanosuit", L"PhongShader")))
+    {
+        return 0;
+    }
+    if (FAILED(mainScene->SetPixelShaderOfModel(L"Nanosuit", L"PhongShader")))
+    {
+        return 0;
+    }
+    */
 
     std::shared_ptr<Cube> ENVCube = std::make_shared<Cube>(color);
     ENVCube->Translate(XMVectorSet(0.0f, 3.0f, 0.0f, 1.0f));
-    floorCube->Scale(2.0f, 2.0f, 2.0f);
     if (FAILED(mainScene->AddRenderable(L"ENVCube", ENVCube)))
     {
         return 0;

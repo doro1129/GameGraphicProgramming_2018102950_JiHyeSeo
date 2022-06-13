@@ -67,7 +67,7 @@ namespace library
                 .AddressU = D3D11_TEXTURE_ADDRESS_WRAP,
                 .AddressV = D3D11_TEXTURE_ADDRESS_WRAP,
                 .AddressW = D3D11_TEXTURE_ADDRESS_WRAP,
-                .ComparisonFunc = D3D11_COMPARISON_ALWAYS,
+                .ComparisonFunc = D3D11_COMPARISON_NEVER,
                 .MinLOD = 0,
                 .MaxLOD = D3D11_FLOAT32_MAX
             };
@@ -86,7 +86,7 @@ namespace library
                 .AddressU = D3D11_TEXTURE_ADDRESS_CLAMP,
                 .AddressV = D3D11_TEXTURE_ADDRESS_CLAMP,
                 .AddressW = D3D11_TEXTURE_ADDRESS_CLAMP,
-                .ComparisonFunc = D3D11_COMPARISON_ALWAYS,
+                .ComparisonFunc = D3D11_COMPARISON_NEVER,
                 .MinLOD = 0,
                 .MaxLOD = D3D11_FLOAT32_MAX
 
